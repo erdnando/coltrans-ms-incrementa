@@ -8,15 +8,14 @@ FROM maven:3.6.0-jdk-11-slim AS build
 COPY --from=gitter /opt/java_src  /opt/java_src
 WORKDIR /opt/java_src
 
-RUN mvn package 
-#&& mvn spring-boot:run
+RUN mvn package && mvn spring-boot:run
 
 
 # Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
-FROM openjdk:11-jre-slim
+#FROM openjdk:11-jre-slim
 
 #Copy ci-dashboard-dist
-COPY --from=build /opt/java_src/target/ms-incrementa-0.0.1-SNAPSHOT.jar  /usr/local/lib/ms-incrementa.jar
+#COPY --from=build /opt/java_src/target/ms-incrementa-0.0.1-SNAPSHOT.jar  /usr/local/lib/ms-incrementa.jar
 
 
 
@@ -30,6 +29,6 @@ COPY --from=build /opt/java_src/target/ms-incrementa-0.0.1-SNAPSHOT.jar  /usr/lo
 
 
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/usr/local/lib/ms-incrementa.jar"]
+#ENTRYPOINT ["java","-jar","/usr/local/lib/ms-incrementa.jar"]
 
 #mvn clean package && mvn spring-boot:run
