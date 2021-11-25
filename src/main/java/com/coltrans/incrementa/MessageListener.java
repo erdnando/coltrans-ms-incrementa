@@ -26,7 +26,7 @@ public class MessageListener {
         //Get the message
         System.out.println(payload);
         try {
-            Thread.sleep(50);
+            Thread.sleep(51);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -46,9 +46,9 @@ public class MessageListener {
         Channel channel = con.createChannel(false);
         Gson gson  = new GsonBuilder().create();
 
-        String queueName = q_origin;
+        //String queueName = q_origin;
         String message =gson.toJson(payload);
-        System.out.println("queueName: "+queueName);
+        System.out.println("queueName: "+q_origin);
 
         try {
             // channel.queueDeclarePassive(q_origin);
@@ -59,7 +59,7 @@ public class MessageListener {
         }
 
         try {
-            channel.basicPublish("", queueName, null, message.getBytes());
+            channel.basicPublish("", q_origin, null, message.getBytes());
         } catch (IOException e) {
            // e.printStackTrace();
         }
@@ -69,7 +69,7 @@ public class MessageListener {
          System.out.println("[X], sent '"+message+"'");
 
         try {
-            channel.close(0, queueName);
+            channel.close(0, q_origin);
             con.close();
         } catch (IOException e) {
             e.printStackTrace();
