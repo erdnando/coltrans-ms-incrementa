@@ -15,21 +15,18 @@ RUN mvn clean install
 # Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
 FROM openjdk:11-jre-slim
 
-#Copy ci-dashboard-dist
+#Copy jar
 COPY --from=build /opt/java_src/target/ms-incrementa-0.0.1-SNAPSHOT.jar  /usr/local/lib/ms-incrementa.jar
 
 
-
-#docker rmi image erdnando/coltrans-vuejs-websocket
+#docker rmi image erdnando/coltrans-ms-incrementa
 #build
-#docker build -t erdnando/coltrans-vuejs-websocket:1.0 .
+#docker build -t erdnando/coltrans-ms-incrementa:1.0 .
 #local test
-#docker run -itd -p 8080:8080 --net=host --name coltrans-vuejs-websocket erdnando/coltrans-vuejs-websocket:1.0
+#docker run -itd -p 10001:8080 --net=host --name coltrans-ms-incrementa erdnando/coltrans-ms-incrementa:1.0
 #push
-#docker push erdnando/coltrans-vuejs-websocket:1.0
+#docker push erdnando/coltrans-ms-incrementa:1.0
 
 
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","/usr/local/lib/ms-incrementa.jar"]
-
-#mvn clean package && mvn spring-boot:run
