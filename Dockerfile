@@ -8,7 +8,7 @@ FROM maven:3.6.0-jdk-11-slim AS build
 COPY --from=gitter /opt/java_src  /opt/java_src
 WORKDIR /opt/java_src
 
-RUN mvn clean package 
+RUN mvn package 
 #&& mvn spring-boot:run
 
 
