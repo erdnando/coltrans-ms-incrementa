@@ -8,6 +8,7 @@ import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ public class MessageListener {
 
     @Autowired
     private RabbitTemplate template;
+
     @Autowired
     private ConnectionFactory cf;
 
@@ -40,8 +42,9 @@ public class MessageListener {
         payload.setValor(String.valueOf(intContador));
 
 
-       //---------------------------------------------------------------
-       //Publish response to origin queue
+       //------------------------------------------------------------------------------------------------
+       //-----------------Connect & create dynamic queue-------------------------------------------------
+       //------------------------------------------------------------------------------------------------
         Connection con = cf.createConnection();
         Channel channel = con.createChannel(false);
         Gson gson  = new GsonBuilder().create();
@@ -51,23 +54,25 @@ public class MessageListener {
         System.out.println("queueName: "+q_origin);
 
         try {
-            // channel.queueDeclarePassive(q_origin);
             channel.queueDeclare(q_origin, false, false, true, null);
         } catch (IOException e) {
             // e.printStackTrace();
             System.out.println("Tratando de recrear la queue....");
         }
-
+        //------------------------------------------------------------------------------------------------
+        //-----------------Send message to dynamic queue--------------------------------------------------
+        //------------------------------------------------------------------------------------------------
         try {
             channel.basicPublish("", q_origin, null, message.getBytes());
         } catch (IOException e) {
            // e.printStackTrace();
         }
 
-
-
          System.out.println("[X], sent '"+message+"'");
 
+        //------------------------------------------------------------------------------------------------
+        //-----------------Release resources--------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------
         try {
             channel.close(0, q_origin);
             con.close();

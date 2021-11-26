@@ -7,11 +7,16 @@ import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 @Configuration
 public class MQConfig {
+
+    @Autowired
+    private Environment env;
 
     public static final String QUEUE = "q_ms_contador";
     public static final String EXCHANGE = "";
@@ -57,9 +62,11 @@ public class MQConfig {
 
     @Bean
     public ConnectionFactory connectionFactory() {
-        CachingConnectionFactory connectionFactory = new CachingConnectionFactory("192.168.0.4", 5672);
-        connectionFactory.setUsername("rabbit");
-        connectionFactory.setPassword("password");
+        int port= Integer.parseInt(env.getProperty("spring.rabbitmq.port"));
+
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory(env.getProperty("spring.rabbitmq.host"), port);
+        connectionFactory.setUsername(env.getProperty("spring.rabbitmq.username"));
+        connectionFactory.setPassword(env.getProperty("spring.rabbitmq.password"));
 
         return connectionFactory;
     }
