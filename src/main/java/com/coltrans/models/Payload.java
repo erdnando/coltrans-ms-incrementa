@@ -1,4 +1,4 @@
-package com.coltrans.incrementa;
+package com.coltrans.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

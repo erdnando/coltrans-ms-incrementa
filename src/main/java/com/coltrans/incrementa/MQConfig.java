@@ -1,28 +1,27 @@
 package com.coltrans.incrementa;
 
+import com.coltrans.models.Payload;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.rabbitmq.client.Channel;
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
+
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 @Configuration
 public class MQConfig {
 
-    @Autowired
-    private Environment env;
-
     public static final String QUEUE = "q_ms_contador";
     public static final String EXCHANGE = "";
     public static final String ROUTING_KEY = "";
-
-
 
     @Bean
     public Queue queue(){
@@ -57,24 +56,46 @@ public class MQConfig {
         return template;
     }
 
+    public Boolean proccessAuxQueue(Connection con, String q_origin, Payload payload) {
 
+        Channel channel = con.createChannel(false);
+        Gson gson  = new GsonBuilder().create();
 
+        String message =gson.toJson(payload);
+        System.out.println("queueName: "+q_origin);
 
-    @Bean
-    public ConnectionFactory connectionFactory() {
-        int port= Integer.parseInt(env.getProperty("spring.rabbitmq.port"));
+        try {
+            channel.queueDeclare(q_origin, false, false, true, null);
+        } catch (IOException e) {
+            System.out.println("Tratando de recrear la queue....");
+        }
 
-        CachingConnectionFactory connectionFactory = new CachingConnectionFactory(env.getProperty("spring.rabbitmq.host"), port);
-        connectionFactory.setUsername(env.getProperty("spring.rabbitmq.username"));
-        connectionFactory.setPassword(env.getProperty("spring.rabbitmq.password"));
+        //------------------------------------------------------------------------------------------------
+        //-----------------Send message to dynamic queue--------------------------------------------------
+        //------------------------------------------------------------------------------------------------
+        try {
+            channel.basicPublish("", q_origin, null, message.getBytes());
+        } catch (IOException e) {
+            // e.printStackTrace();
+        }
 
-        return connectionFactory;
+        System.out.println("[X], sent '"+message+"'");
+
+        //------------------------------------------------------------------------------------------------
+        //-----------------Release resources--------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------
+        try {
+            channel.close(0, q_origin);
+            con.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
+
+        return true;
     }
 
-    @Bean
-    public AmqpAdmin amqpAdmin() {
-        return new RabbitAdmin(connectionFactory());
-    }
 
 
 }
