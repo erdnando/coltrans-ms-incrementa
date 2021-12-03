@@ -10,6 +10,7 @@ WORKDIR /opt/java_src
 
 RUN mvn clean install 
 #mvn package  && mvn spring-boot:run
+#automatic build
 
 
 # Stage 1, based on open-jdk, to have only the compiled app, ready for production
