@@ -12,7 +12,7 @@ RUN mvn clean install
 #mvn package  && mvn spring-boot:run
 
 
-# Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
+# Stage 1, based on open-jdk, to have only the compiled app, ready for production
 FROM openjdk:11-jre-slim
 
 #Copy jar
