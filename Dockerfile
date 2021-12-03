@@ -1,11 +1,11 @@
 FROM alpine/git:latest AS gitter
 ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
-RUN git clone https://github.com/erdnando/coltrans-ms-incrementa.git /opt/java_src
+RUN git clone https://github.com/erdnando/coltrans-ms-incrementa.git /opt/cicd/java_ms_incrementa
 
 
 FROM maven:3.6.0-jdk-11-slim AS build
 
-COPY --from=gitter /opt/java_src  /opt/java_src
+COPY --from=gitter /opt/cicd/java_ms_incrementa  /opt/java_src
 WORKDIR /opt/java_src
 
 RUN mvn clean install 
